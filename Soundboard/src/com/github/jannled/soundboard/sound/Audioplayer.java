@@ -23,8 +23,22 @@ public class Audioplayer
 		}
 	}
 	
+	private Mixer getSelectedAudioDevice()
+	{
+		final String audioManagerName = (String) Main.window.getAudioDevices().getSelectedItem();
+		
+		for(int i=0; i<audioMixers.length; i++)
+		{
+			if(audioMixers[i].getName().equals(audioManagerName))
+			{
+				return AudioSystem.getMixer(audioMixers[i]);
+			}
+		}
+		return null;
+	}
+	
 	public void play(InputStream audio)
 	{
-		
+		getSelectedAudioDevice();
 	}
 }
