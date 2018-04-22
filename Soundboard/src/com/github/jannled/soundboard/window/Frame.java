@@ -4,6 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
@@ -21,12 +26,16 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.github.jannled.lib.Print;
 import com.github.jannled.soundboard.Main;
 import com.github.jannled.window.Textfield;
+import com.github.jannled.window.filedrop.FiledropEvent;
+import com.github.jannled.window.filedrop.FiledropHandler;
+import javax.swing.JScrollPane;
 
-public class Frame extends JFrame
+public class Frame extends JFrame implements FiledropEvent
 {
 	private static final long serialVersionUID = 565579054828392509L;
 	private JFileChooser fileChooser;
 	private JComboBox<String> cbAudioDevices;
+	private FiledropHandler fdh = new FiledropHandler();
 	
 	/**
 	 * Create the frame.
@@ -57,6 +66,9 @@ public class Frame extends JFrame
 			}
 		});
 		
+		//The Filedrop Handler
+		fdh.registerListener(this);
+		
 		//The File chooser
 		fileChooser = new JFileChooser();
 		FileFilter fileFilter = new FileNameExtensionFilter("Soundboard archive Files", "sba", "zip");
@@ -77,15 +89,37 @@ public class Frame extends JFrame
 		pnlSounds.add(searchBox, BorderLayout.NORTH);
 		searchBox.setColumns(10);
 		
-		SoundList soundList = new SoundList();
-		pnlSounds.add(soundList);
+		SoundList soundList = new SoundList(Main.soundarchive);
+		soundList.setTransferHandler(fdh);
+		JScrollPane soundScroll = new JScrollPane(soundList);
+		pnlSounds.add(soundScroll);
 		
 		JPanel pnlConfig = new JPanel();
 		tabbedPane.addTab(ResourceBundle.getBundle("com.github.jannled.soundboard.window.messages").getString("Tabs.config"), null, pnlConfig, null);
 		pnlConfig.setLayout(new BorderLayout(0, 0));
 		
+		JPanel pnlAudioSettings = new JPanel();
+		pnlConfig.add(pnlAudioSettings, BorderLayout.NORTH);
+		pnlAudioSettings.setLayout(new BorderLayout(0, 0));
+		
 		cbAudioDevices = new JComboBox<String>();
-		pnlConfig.add(cbAudioDevices, BorderLayout.NORTH);
+		pnlAudioSettings.add(cbAudioDevices);
+		
+		JPanel pnlDesign = new JPanel();
+		pnlConfig.add(pnlDesign, BorderLayout.CENTER);
+		pnlDesign.setLayout(new BorderLayout(0, 0));
+		
+		//Combo Box designs
+		JComboBox<String> cbDesigns = new JComboBox<String>();
+		
+		cbDesigns.addItem("");
+		
+		cbDesigns.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				changeDesign(cbDesigns);
+			}
+		});
+		pnlDesign.add(cbDesigns, BorderLayout.NORTH);
 		
 		setVisible(true);
 	}
@@ -93,5 +127,20 @@ public class Frame extends JFrame
 	public JComboBox<String> getAudioDevices()
 	{
 		return cbAudioDevices;
+	}
+	
+	private void changeDesign(JComboBox<String> designs)
+	{
+		
+	}
+
+	@Override
+	public void fileDropped(List<File> files)
+	{
+		Print.m("Files " + Arrays.toString(files.toArray()) + " has been dropped!");
+		for(File f : files)
+		{
+			Main.soundarchive.addSound(f);
+		}
 	}
 }

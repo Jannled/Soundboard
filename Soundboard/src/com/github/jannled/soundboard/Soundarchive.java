@@ -1,25 +1,23 @@
 package com.github.jannled.soundboard;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.github.jannled.lib.Print;
 import com.github.jannled.lib.archive.Zipfile;
+import com.github.jannled.soundboard.sound.Sound;
 
 public class Soundarchive
 {
 	File zipFile = null;
 	Zipfile archive = null;
+	HashMap<String, Sound> sounds = new HashMap<String, Sound>();
 	
 	public Soundarchive(File f)
 	{
 		openArchive(f);
+		refresh();
 	}
 	
 	/**
@@ -35,33 +33,30 @@ public class Soundarchive
 		return true;
 	}
 	
+	public void refresh()
+	{
+		sounds.clear();
+		String[] soundNames = archive.getFiles("/");
+		
+		for(String s : soundNames)
+		{
+			sounds.put(s, new Sound(s, archive.getFile("/" + s), -1));
+		}
+	}
+	
 	public void addSound(File f)
 	{
 		archive.addFile(f.toPath(), Paths.get("/" + f.getName()), 0, true);
 	}
 	
-	public InputStream getSound(String name)
+	public Sound getSound(String name)
 	{
-		return archive.getFile(name);
+		return sounds.get(name);
 	}
 	
 	public String[] getAllSounds()
 	{
-		ArrayList<String> names = new ArrayList<String>();
-		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(archive.getFilesystem().getPath("/")))
-		{
-			for(Path p : directoryStream)
-			{
-				names.add(p.getFileName().toString());
-			}
-			
-		} catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String[] s = new String[names.size()];
-		return names.toArray(s);
+		return archive.getFiles("/");
 	}
 
 	public File getZipFile()

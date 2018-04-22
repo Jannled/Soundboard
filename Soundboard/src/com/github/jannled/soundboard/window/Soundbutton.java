@@ -4,24 +4,38 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
+import com.github.jannled.lib.Print;
 import com.github.jannled.soundboard.Main;
+import com.github.jannled.soundboard.sound.Sound;
 
 public class Soundbutton extends JPanel implements MouseListener
 {
 	private static final long serialVersionUID = -2175629959942208865L;
 	
-	private String name;
-
-	public Soundbutton(String name)
+	private Sound sound;
+	
+	public Soundbutton(Sound sound)
 	{
-		this.name = name;
+		this.sound = sound;
+		JTextField name = new JTextField("" + sound.getName());
+		name.setEditable(false);
+		
+		add(name);
 	}
 	
 	@Override
 	public void mouseClicked(MouseEvent e)
 	{
-		Main.audioplayer.play(Main.soundarchive.getSound(name));
+		if(sound != null)
+		{
+			Main.audioplayer.play(sound);
+		}
+		else
+		{
+			Print.e("The InputStream for sound \"" + sound.toString() + "\" is null!");
+		}
 	}
 
 	@Override

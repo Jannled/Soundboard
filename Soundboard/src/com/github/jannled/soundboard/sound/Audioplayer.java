@@ -1,7 +1,5 @@
 package com.github.jannled.soundboard.sound;
 
-import java.io.InputStream;
-
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 
@@ -37,7 +35,7 @@ public class Audioplayer
 		return null;
 	}
 	
-	public void play(InputStream audio)
+	public void play(Sound audio)
 	{
 		getSelectedAudioDevice();
 	}
